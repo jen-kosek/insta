@@ -1,0 +1,59 @@
+{% extends "page.html" %} 
+{% block content %}
+    <!-- info -->
+    <div>
+        <p>{{ username }}</p>
+        {% if logname_follows_username %}
+            <p> 
+                following 
+                <form action="/following/?target=
+                    {{ url_for('show_user', user_url_slug = username) }}"
+                    method="post" enctype="multipart/form-data">
+                    <input type="submit" name="unfollow" value="unfollow"/>
+                    <input type="hidden" name="username" value="{{ username }}"/>
+                    <input type="hidden" name="operation" value="unfollow"/>
+                </form>
+            </p>
+        {% elif logname != username %}
+            <p> 
+                not following
+                <form action="/following/?target=
+                    {{ url_for('show_user', user_url_slug = username) }}"
+                    method="post" enctype="multipart/form-data">
+                    <input type="submit" name="follow" value="follow"/>
+                    <input type="hidden" name="username" value="{{ username }}"/>
+                    <input type="hidden" name="operation" value="unfollow"/>
+                </form>
+            </p>
+        {% else %}
+            <p> <a href="/accounts/edit/">Edit profile</a> </p>
+            <p>
+                <form action="/accounts/logout/" method="post" enctype="multipart/form-data">
+                    <input type="submit" name="logout" value="Logout"/>
+                </form>
+            </p>
+        {% endif %}
+        <p>
+            {{ total_posts }} posts 
+            {{ followers }} <a href="/users/{{ username }}/followers/">followers</a>
+            {{ following }} <a href="/users/{{ username }}/following/">following</a>
+        </p>
+        <p>{{ fullname }}</p>
+        <p>
+            <form action="/posts/?target=
+                {{ url_for('show_user', user_url_slug = username) }}"
+                method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept="image/*" required/>
+                <input type="submit" name="create_post" value="upload new post"/>
+                <input type="hidden" name="operation" value="create"/>
+            </form>
+        </p>
+    </div>
+
+    <!-- post photos with links -->
+    <div>
+    {% for post in posts %}
+        <p><a href="/posts/{{ post.postid }}/"><img src="/uploads/{{ post.filename }}" alt="/uploads/{{ post.filename }}"> </a></p>
+    {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "page.html" %} 
+{% block content %}
+    {% for user in not_following %}
+        <img src="/uploads/{{ user.filename }}" alt="{{ user.filename }}">
+        <p><a href="/users/{{ user.username }}/"></a>{{ user.username }}</p>
+        <form action="/following/?target={{ url_for('show_explore') }}"
+        method="post" enctype="multipart/form-data">
+            <input type="submit" name="follow" value="follow"/>
+            <input type="hidden" name="username" value="{{ user.username }}"/>
+            <input type="hidden" name="operation" value="follow"/>
+        </form>
+    {% endfor %}
+{% endblock %}

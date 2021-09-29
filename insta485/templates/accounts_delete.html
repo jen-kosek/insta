@@ -1,0 +1,8 @@
+{% extends "page.html" %} 
+{% block content %}
+<p>{{ username }}</p>
+<form action="{{ url_for('post_accounts') }}?target={{ url_for('show_accounts_create') }}" method="post" enctype="multipart/form-data">
+    <input type="submit" name="delete" value="confirm delete account"/>
+    <input type="hidden" name="operation" value="delete"/>
+</form>
+{% endblock %}

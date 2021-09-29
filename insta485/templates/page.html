@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>insta485</title>
+    </head>
+
+    <body id="header">
+        <!-- header links -->
+        <div style="text-align:left;"><a href="/">Insta485</a></div>
+        
+        <!-- if logged in, show links to explore and username's account -->
+        {% if (show_logname and logname!="") %}
+        <div style="text-align:right;"><a href="/explore/">explore</a></div>
+        <div style="text-align:right;"><a href="/users/{{ logname }}/">{{ logname }}</a></div>
+        {% endif %}
+        
+        <div id="content">{% block content %}{% endblock %}</div>
+    </body>
+</html>

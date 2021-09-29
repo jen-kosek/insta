@@ -1,0 +1,45 @@
+{% extends "page.html" %} 
+{% block content %}
+    {% for post in posts %} 
+        <!-- profile info -->
+        <a href="/users/{{ post.owner }}/"><img src="/uploads/{{ post.owner_filename }}" alt="{{ post.owner_filename }}"></a>
+        <p><a href="/users/{{ post.owner }}/"><b>{{ post.owner }}</b></a></p>
+
+        <!-- Content -->
+        <p><a href="/posts/{{ post.postid }}/">{{ post.timestamp }} </a></p>
+        <img src="/uploads/{{ post.filename }}" alt="{{ post.filename }}">
+        {% if post.num_likes == 1 %}
+            <p>1 like</p>
+        {% else %}
+            <p>{{ post.num_likes }} likes</p>
+        {% endif %}
+
+        <!-- comments -->
+        {% for comment in post.comments %}
+            <p><a href="/users/{{ comment.owner }}/"><b>{{ comment.owner }}</b></a> {{ comment.text }}</p>
+        {% endfor %} 
+
+        <!-- like and unlike buttons -->
+        {% if show_like == True %}
+        <form action="{{ url_for('post_likes') }}?target={{ url_for(request.endpoint, postid_url_slug=request.args['postid_url_slug']) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="like"/>
+            <input type="hidden" name="postid" value="{{ post.postid }}"/>
+            <input type="submit" name="like" value="like"/>
+        </form>
+        {% else %}
+        <form action="{{ url_for('post_likes') }}?target={{ url_for(request.endpoint, postid_url_slug=request.args['postid_url_slug']) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="unlike"/>
+            <input type="hidden" name="postid" value="{{ post.postid }}"/>
+            <input type="submit" name="unlike" value="unlike"/>
+        </form>
+        {% endif %}
+
+        <!-- comment input -->
+        <form action="{{ url_for('post_comments') }}?target={{ url_for(request.endpoint)  }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="create"/>
+            <input type="hidden" name="postid" value="{{ post.postid }}"/>
+            <input type="text" name="text" required/>
+            <input type="submit" name="comment" value="comment"/>
+        </form>
+    {% endfor %}
+{% endblock %}

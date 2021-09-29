@@ -1,0 +1,12 @@
+{% extends "page.html" %} 
+{% block content %}
+<form action="{{ url_for('post_accounts') }}?target={{ url_for(request.endpoint) }}" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*"/>
+    <input type="text" name="fullname" value="{{ fullname }}" required/>
+    <input type="text" name="email" value="{{ email }}" required/>
+    <input type="submit" name="update" value="submit"/>
+    <input type="hidden" name="operation" value="edit_account"/>
+</form>
+<p><b><a href="{{ url_for('show_accounts_password') }}">Change password</a></b></p>
+<p><b><a href="{{ url_for('show_accounts_delete') }}">Delete account</a></b></p>
+{% endblock %}
