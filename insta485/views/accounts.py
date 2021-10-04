@@ -185,9 +185,8 @@ def verify_password(username, password):
     hash_obj.update(password_salted.encode('utf-8'))
     password_hash = hash_obj.hexdigest()
 
-    # Hashed passwords don't match --> abort
-    if password_hash != db_password_hash:
-        flask.abort(403)
+    # Return whether hashed passwords match
+    return password_hash == db_password_hash
 
 
 def set_password(username, password):
