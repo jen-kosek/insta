@@ -2,11 +2,11 @@
 import flask
 import insta485
 from insta485.api.posts import check_login
+from insta485.api import exceptions
 
 
-@insta485.app.route('/api/v1/comments/?postid=<int:postid_url_slug>/',
-                    methods=["POST"])
-def add_comment(postid_url_slug):
+@insta485.app.route('/api/v1/comments/', methods=["POST"])
+def add_comment():
     """Add a new comment to postid.
 
     Example:
@@ -21,6 +21,12 @@ def add_comment(postid_url_slug):
     """
     logname = check_login()
 
+    # Get postid of input
+    post_num = flask.request.args.get("postid", type=int)
+
+    if not post_num:
+        raise exceptions.InvalidUsage("Bad Request", status_code=400)
+
     # Connect to database
     connection = insta485.model.get_db()
 
@@ -28,13 +34,13 @@ def add_comment(postid_url_slug):
         "lognameOwnsThis": True,
         "owner": logname,
         "ownerShowUrl": "/users/" + logname + "/",
-        "text": flask.request.json["text"],
+        "text": flask.request.json["text"]
     }
 
     cur = connection.execute(
         "INSERT INTO comments (owner, postid, text) "
         "VALUES (?, ?, ?) ",
-        [logname, postid_url_slug, flask.request.json["text"]]
+        [logname, post_num, flask.request.json["text"]]
     )
 
     # Get the comment row
@@ -46,12 +52,12 @@ def add_comment(postid_url_slug):
 
     # Set commentid and url
     context['commentid'] = temp
-    context['url'] = "/api/v1/comments/" + temp + "/"
+    context['url'] = "/api/v1/comments/" + str(temp) + "/"
 
     return flask.jsonify(**context), 201
 
 
-@insta485.app.route('/api/v1/comments/<commentid>/', methods=["DELETE"])
+@insta485.app.route('/api/v1/comments/<int:commentid>/', methods=["DELETE"])
 def delete_comment(commentid):
     """Delete a comment from commentid."""
     logname = check_login()
@@ -65,4 +71,4 @@ def delete_comment(commentid):
         [commentid, logname]
     )
 
-    return 204
+    return '', 204
