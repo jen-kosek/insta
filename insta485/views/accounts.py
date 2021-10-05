@@ -220,10 +220,9 @@ def save_photo(fileobj):
     filename = fileobj.filename
 
     # Compute base name (filename without directory).
-    uuid_basename = "{stem}{suffix}".format(
-        stem=uuid.uuid4().hex,
-        suffix=pathlib.Path(filename).suffix
-    )
+    stem = uuid.uuid4().hex
+    suffix = pathlib.Path(filename).suffix
+    uuid_basename = f"{stem}{suffix}"
 
     # Save to disk
     path = insta485.app.config["UPLOAD_FOLDER"]/uuid_basename

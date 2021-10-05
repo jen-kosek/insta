@@ -177,16 +177,16 @@ def get_post_context(post, logname):
     post_context = {
             "comments": comments,
             "created": post["created"],
-            "imgUrl": "/uploads/{}".format(post["filename"]),
+            "imgUrl": "/uploads/" + str(post["filename"]),
             "likes": {"lognameLikesThis": logname_likes_this,
                       "numLikes": likes[0]["num_likes"],
                       "url": like_url},
             "owner": post['owner'],
-            "ownerImgUrl": "/uploads/{}".format(post["owner_filename"]),
-            "ownerShowUrl": "/users/{}/".format(post["owner"]),
-            "postShowUrl": "/posts/{}/".format(post["postid"]),
+            "ownerImgUrl": "/uploads/" + str(post["owner_filename"]),
+            "ownerShowUrl": "/users/" + str(post["owner"]) + "/",
+            "postShowUrl": "/posts/" + str(post["postid"]) + "/",
             "postid": post["postid"],
-            "url": "/api/v1/posts/{}/".format(post["postid"])
+            "url": "/api/v1/posts/" + str(post["postid"]) + "/"
         }
 
     return post_context

@@ -24,7 +24,7 @@ class Post extends React.Component {
       .then((data) => {
         this.setState({
           imgUrl: data.img_url,
-          owner: data.owner
+          owner: data.owner,
         });
       })
       .catch((error) => console.log(error));
@@ -38,7 +38,7 @@ class Post extends React.Component {
     // Render number of post image and post owner
     return (
       <div className="post">
-        <img src={imgUrl} />
+        <img src={imgUrl} alt={imgUrl} />
         <p>
           {owner}
         </p>
