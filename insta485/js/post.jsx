@@ -8,7 +8,8 @@ class Post extends React.Component {
   constructor(props) {
     // Initialize mutable state
     super(props);
-    this.state = { imgUrl: '', owner: '' };
+    this.state = { comments: '', imgUrl: '', created: '', likes: '', owner: '',
+        ownerImgUrl: '', ownerShowUrl: '', postShowUrl: '', postid: '', url: ''};
   }
 
   componentDidMount() {
@@ -23,8 +24,16 @@ class Post extends React.Component {
       })
       .then((data) => {
         this.setState({
-          imgUrl: data.img_url,
-          owner: data.owner,
+            comments: data.comments,
+            imgUrl: data.imgUrl,
+            created: data.created,
+            likes: data.likes,
+            owner: data.owner,
+            ownerImgUrl: data.ownerImgUrl,
+            ownerShowUrl: data.ownerShowUrl,
+            postShowUrl: data.postShowUrl,
+            postid: data.postid,
+            url: data.url
         });
       })
       .catch((error) => console.log(error));
