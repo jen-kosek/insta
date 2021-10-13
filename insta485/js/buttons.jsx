@@ -1,5 +1,4 @@
 import React from 'react';
-
 class like_unlike_button extends React.Component{
     handleButtonClick() {
         this.props.handleButtonClick();
@@ -70,7 +69,7 @@ class photo_and_likes extends React.Component{
 
     // unlikes the post
     handleUnlike(){
-        fetch('/api/v1/likes/<{' + likeid + '}>/', { credentials: 'same-origin' })
+        fetch(like_url, { credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
             else this.setState(prevState => ({

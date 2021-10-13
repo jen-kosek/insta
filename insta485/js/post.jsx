@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import photo_and_likes from './buttons';
 
 class Post extends React.Component {
     /* Display number of image and post owner of a single post
@@ -9,7 +10,7 @@ class Post extends React.Component {
         // Initialize mutable state
         super(props);
         this.state = { comments: '', imgUrl: '', created: '', likes: '', owner: '',
-            ownerImgUrl: '', ownerShowUrl: '', postShowUrl: '', postid: '', url: ''};
+            ownerImgUrl: '', ownerShowUrl: '', postShowUrl: '', postid: ''};
     }
 
     componentDidMount() {
@@ -32,8 +33,7 @@ class Post extends React.Component {
                 ownerImgUrl: data.ownerImgUrl,
                 ownerShowUrl: data.ownerShowUrl,
                 postShowUrl: data.postShowUrl,
-                postid: data.postid,
-                url: data.url
+                postid: data.postid
             });
         })
         .catch((error) => console.log(error));
@@ -42,7 +42,7 @@ class Post extends React.Component {
     // returns list of comments
     getComments(){
         return comments.map((comment) => {
-            return <comment>{comment}</comment>
+            <comment commentinfo = { comment } />
         })
     }
 
@@ -59,10 +59,9 @@ class Post extends React.Component {
             <a href={ ownerShowUrl }><b>{ owner }</b></a>
             <p><a href={ postShowUrl }> { created } </a></p>
             <photo_and_likes likes = { this.state.likes } 
-                             postid = { postid }
-                             imgUrl = { imgUrl }></photo_and_likes>
+                postid = { postid } imgUrl = { imgUrl } />
             {this.getComments}
-            <comment_form></comment_form>
+            <comment_form />
         </div>
         );
     }
