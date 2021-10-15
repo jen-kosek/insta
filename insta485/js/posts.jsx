@@ -6,7 +6,7 @@ class Posts extends React.Component {
     constructor(props) {
         // Initialize mutable state
         super(props);
-        this.state = { postUrls: [] };
+        this.state = { postsInfo: [] };
     }
 
     componentDidMount() {
@@ -20,25 +20,34 @@ class Posts extends React.Component {
             return response.json();
         })
         .then((data) => {
-            data['results'].forEach(post => {
-                this.setState(prevState => ({
-                    postUrls: [...prevState.postUrls, post['url']]
-                }));
-            })
+            this.setState({postsInfo: data['results']})
         })
         .catch((error) => console.log(error));
     }
 
-    get_posts(){
-        return <div> {this.state.postUrls.map(postUrl => (<Post url= { postUrl }/>)) } </div>;
-    }
-
     render(){
-        const {postUrls} = this.state;
+        const {postsInfo} = this.state;
+        
+        // make a post component for each postUrl
+        let posts = postsInfo.map(post => (
+        <Post key={ post.postid } 
+              url={ post.url } 
+              comments={ post.comments }
+              created={ post.created }
+              imgUrl={ post.imgUrl }
+              created={ post.created }
+              numLikes={ post.likes.numLikes }
+              lognameLikesThis={ post.likes.lognameLikesThis }
+              likeUrl={ post.likes.url } 
+              owner={ post.owner }
+              ownerImgUrl={ post.ownerImgUrl }
+              ownerShowUrl={ post.ownerShowUrl } 
+              postShowUrl={ post.postShowUrl } 
+              postid={ post.postid }/>));
 
         return (
             <div className="posts"> 
-                { postUrls.length ? this.get_posts : <p>no posts</p> }
+                { posts }
             </div>
         );
     }

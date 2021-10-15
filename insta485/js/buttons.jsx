@@ -1,114 +1,146 @@
 import React from 'react';
-class like_unlike_button extends React.Component{
+import PropTypes from 'prop-types';
+
+class LikeUnlikeButton extends React.Component{
+    constructor(props) {
+        super(props);
+        this.handleButtonClick = this.handleButtonClick.bind(this);
+    }
+
     handleButtonClick() {
         this.props.handleButtonClick();
     }
 
-    render(){  
-        const {lognameLikesThis} = this.props
-        
+    render(){        
+        const { lognameLikesThis } = this.props;
+
         return (
         <button onClick={this.handleButtonClick} 
                 className="like-unlike-button">
-            { this.props.lognameLikesThis ? 'like' : 'unlike' }
+            { lognameLikesThis ? 'unlike' : 'like' }
         </button>
-        )
+        );
     }
 }
 
-class post_photo extends React.Component{    
+class PostPhoto extends React.Component{    
+    constructor(props) {
+        super(props);
+        this.handleDoubleClick = this.handleDoubleClick.bind(this);
+    }
+    
     handleDoubleClick() {
         this.props.handleDoubleClick();
     }
 
     render(){
-        return ( <img src={ this.props.imgUrl }  
+        const {imgUrl} = this.props;
+
+        return ( <img src={ imgUrl }  
             onDoubleClick={this.handleDoubleClick} 
-            alt={ this.props.imgUrl }></img>)
+            alt={ imgUrl } />);
     }
 }
 
-class photo_and_likes extends React.Component{
+class PhotoAndLikes extends React.Component{
     
     constructor(props) {
         super(props);
-        this.state = {numlikes: props.likes.numLikes, like_url: props.likes.url,
-            lognameLikesThis: props.likes.lognameLikesThis, postid: props.postid, imgUrl: props.imgUrl };
-    
+        this.state = {numLikes: this.props.numLikes, likeUrl: this.props.likeUrl,
+            lognameLikesThis: this.props.lognameLikesThis };
         this.handleButtonClick = this.handleButtonClick.bind(this);
+        this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.handleLike = this.handleLike.bind(this);
         this.handleUnlike = this.handleUnlike.bind(this);
+        this.addLike = this.addLike.bind(this);
+        this.deleteLike = this.deleteLike.bind(this);
     }
 
-    // handles the like/unlikes button being pressed
-    updateButtonClick(){
-        if (prevState.lognameLikesThis) this.handleLike();
-        else this.handleUnlike();
+    // update state when props change
+    //componentDidUpdate(prevProps) {
+      //  if (prevProps !== this.props) {
+        //    this.setState({
+           //     numLikes: this.props.numLikes, 
+             //   likeUrl: this.props.likeUrl,
+               // lognameLikesThis: this.props.lognameLikesThis
+         //   })
+       // }
+    //}
 
-        this.setState(prevState => ({
-            lognameLikesThis: !prevState.lognameLikesThis
-        }));
+    // handles the like/unlikes button being pressed
+    handleButtonClick(){
+        this.state.lognameLikesThis ? this.handleUnlike() : this.handleLike();
     }
 
     // handles a double click to the phtoto
-    handleDoubleClick(){
-        if(!prevState.lognameLikesThis) this.handleLike();
+    handleDoubleClick(){   
+        if (!this.state.lognameLikesThis) {
+            this.handleLike();
+        } 
     }
 
     // likes the post
     handleLike(){
-        fetch('/api/v1/likes/?postid=' + this.state.postid, { credentials: 'same-origin' })
-        .then((response) => {
-            if (!response.ok) throw Error(response.statusText);
-            else this.setState(prevState => ({
-                numlikes: ++prevState.lognameLikesThis
-            }));
-        })
-        .catch((error) => console.log(error));
+        this.setState((prevState, props) => (
+            { lognameLikesThis: true,
+              numlikes: prevState.numLikes + 1 },
+            this.addLike(props.postid)
+        ));
     }
 
     // unlikes the post
     handleUnlike(){
-        fetch(like_url, { credentials: 'same-origin' })
+        this.setState(prevState => (
+            { lognameLikesThis: false,
+              numlikes: prevState.numLikes - 1 },
+            this.deleteLike(prevState.likeUrl)
+        ));
+    }
+
+    // deletes the like from the db
+    deleteLike(likeUrl){
+        fetch(likeUrl, { method: 'DELETE', credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
-            else this.setState(prevState => ({
-                numlikes: --prevState.lognameLikesThis
-            }));
+            else this.setState( {likeUrl: null} )
+        })
+        .catch((error) => console.log(error));
+    }
+
+    // adds the like in the db
+    addLike(postid){
+        fetch('/api/v1/likes/?postid=' + postid, 
+            { method: 'POST', credentials: 'same-origin' })
+        .then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            else this.setState({likeUrl: response.url})
         })
         .catch((error) => console.log(error));
     }
 
     // renders the post photo, the like counts, and the like/unlike button
     render() {
-        let like_or_likes = "likes"
-        if (this.state.numlikes == 1) like_or_likes = "likes"
+        const { numLikes, lognameLikesThis } = this.state
+        const { imgUrl } = this.props
+
         return (
-          <div>
-            <post_photo 
-            imgUrl={this.state.imgUrl}
-            handleDoubleClick={this.handleButtonClick} />
-            <p>{this.state.numLikes} {like_or_likes}</p>
-            <like_unlike_button 
-            lognameLikesThis={this.state.lognameLikesThis}
-            handleButtonClick={this.handleButtonClick} />
-          </div>
+            <div>
+                <PostPhoto 
+                imgUrl={ imgUrl }
+                handleDoubleClick={ this.handleDoubleClick } />
+                <p>{ numLikes } { (numLikes === 1) ? 'like' : 'likes' }</p>
+                <LikeUnlikeButton 
+                lognameLikesThis={ lognameLikesThis }
+                handleButtonClick={ this.handleButtonClick } />
+            </div>
         );
     }
 }
 
-
-class delete_comment_button extends React.Component{    
-    // function called when the button is pressed
-    handleButtonClick(event){
-        this.props.handleButtonClick();
-    }
-    
-    render(){
-        return(
-        <button onClick={this.handleButtonClick} className="delete-comment-button">
-            Delete comment
-        </button>
-        )
-    }
-}
+PhotoAndLikes.propTypes = {
+    numLikes: PropTypes.number.isRequired,
+    likeUrl: PropTypes.string,
+    lognameLikesThis: PropTypes.bool.isRequired,
+};
+  
+export default PhotoAndLikes;
