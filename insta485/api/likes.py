@@ -56,7 +56,7 @@ def add_like():
     # Set likeid and url
     context = {
         "likeid": temp,
-        "url": "/api/v1/comments/" + str(temp) + "/"
+        "url": "/api/v1/likes/" + str(temp) + "/"
     }
 
     return flask.jsonify(**context), 201

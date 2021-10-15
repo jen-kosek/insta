@@ -52,8 +52,6 @@ class PhotoAndLikes extends React.Component{
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.handleLike = this.handleLike.bind(this);
         this.handleUnlike = this.handleUnlike.bind(this);
-        this.addLike = this.addLike.bind(this);
-        this.deleteLike = this.deleteLike.bind(this);
     }
 
     // update state when props change
@@ -81,39 +79,32 @@ class PhotoAndLikes extends React.Component{
 
     // likes the post
     handleLike(){
-        this.setState((prevState, props) => (
-            { lognameLikesThis: true,
-              numlikes: prevState.numLikes + 1 },
-            this.addLike(props.postid)
-        ));
-    }
-
-    // unlikes the post
-    handleUnlike(){
-        this.setState(prevState => (
-            { lognameLikesThis: false,
-              numlikes: prevState.numLikes - 1 },
-            this.deleteLike(prevState.likeUrl)
-        ));
-    }
-
-    // deletes the like from the db
-    deleteLike(likeUrl){
-        fetch(likeUrl, { method: 'DELETE', credentials: 'same-origin' })
+        fetch('/api/v1/likes/?postid=' + this.props.postid, 
+            { method: 'POST', credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
-            else this.setState( {likeUrl: null} )
+            return response.json();
+        })
+        .then((json) => {
+            this.setState(prevState => (
+                { likeUrl: json.url,
+                  lognameLikesThis: true,
+                  numLikes: prevState.numLikes + 1 }
+            ));
         })
         .catch((error) => console.log(error));
     }
 
-    // adds the like in the db
-    addLike(postid){
-        fetch('/api/v1/likes/?postid=' + postid, 
-            { method: 'POST', credentials: 'same-origin' })
+    // unlikes the post
+    handleUnlike(event){
+        fetch(this.state.likeUrl, { method: 'DELETE', credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
-            else this.setState({likeUrl: response.url})
+            this.setState(prevState => (
+                { lognameLikesThis: false,
+                  numLikes: prevState.numLikes - 1,
+                  likeUrl: null }
+            ));
         })
         .catch((error) => console.log(error));
     }
