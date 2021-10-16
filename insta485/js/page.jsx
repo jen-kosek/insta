@@ -7,7 +7,8 @@ class Page extends React.Component {
     constructor(props) {
         // Initialize mutable state
         super(props);
-        this.state = { postsInfo: [], next: '' };
+        this.state = { url: this.props.url, postsInfo: [], next: '' };
+        this.fetchNextPage = this.fetchNextPage.bind(this);
     }
 
     componentDidMount() {
@@ -27,47 +28,32 @@ class Page extends React.Component {
     }
 
     fetchNextPage() {
+        const { next } = this.state;
+
         // Call REST API to get the all the postid on the page
-        fetch(url, { credentials: 'same-origin' })
+        fetch(next, { credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
         })
         .then((data) => {
             this.setState( (prevState) => ({
-                postsInfo: [...prevState, 
-                data['results']], next: data['next']
+                postsInfo: prevState.postsInfo.concat(data['results']), 
+                next: data['next'],
+                url: data['url']
             }))
         })
+        .then( () => {return})
         .catch((error) => console.log(error));
     }
 
     render(){
-        const {postsInfo, next } = this.state;
-        
-        // make a post component for each postUrl
-        let posts = postsInfo.map(post => (
-        <Post key={ post.postid } 
-              url={ post.url } 
-              comments={ post.comments }
-              created={ post.created }
-              imgUrl={ post.imgUrl }
-              created={ post.created }
-              numLikes={ post.likes.numLikes }
-              lognameLikesThis={ post.likes.lognameLikesThis }
-              likeUrl={ post.likes.url } 
-              owner={ post.owner }
-              ownerImgUrl={ post.ownerImgUrl }
-              ownerShowUrl={ post.ownerShowUrl } 
-              postShowUrl={ post.postShowUrl } 
-              postid={ post.postid }/>));
-
         return (
             <div className="page"> 
                 <InfiniteScroll
-                    dataLength={ posts.length } //This is important field to render the next data
+                    dataLength={ this.state.postsInfo.length } //This is important field to render the next data
                     next={ this.fetchNextPage }
-                    hasMore={ next !== '' }
+                    hasMore={ (this.state.next !== "") }
                     loader={<h4>Loading...</h4>}
                     endMessage={
                         <p style={{ textAlign: 'center' }}>
@@ -75,7 +61,22 @@ class Page extends React.Component {
                         </p>
                     }
                     >
-                    {posts}
+                    { this.state.postsInfo.map(post => (
+                        <Post key={ post.postid } 
+                            url={ post.url } 
+                            comments={ post.comments }
+                            created={ post.created }
+                            imgUrl={ post.imgUrl }
+                            owner={ post.owner }
+                            ownerImgUrl={ post.ownerImgUrl }
+                            ownerShowUrl={ post.ownerShowUrl } 
+                            postShowUrl={ post.postShowUrl } 
+                            postid={ post.postid }
+                            numLikes={ post.likes.numLikes }
+                            lognameLikesThis={ post.likes.lognameLikesThis }
+                            likeUrl={ post.likes.url } 
+                        />
+                    ))}
                 </InfiniteScroll>
             </div>
         );

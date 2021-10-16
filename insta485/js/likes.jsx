@@ -54,17 +54,6 @@ class PhotoAndLikes extends React.Component{
         this.handleUnlike = this.handleUnlike.bind(this);
     }
 
-    // update state when props change
-    //componentDidUpdate(prevProps) {
-      //  if (prevProps !== this.props) {
-        //    this.setState({
-           //     numLikes: this.props.numLikes, 
-             //   likeUrl: this.props.likeUrl,
-               // lognameLikesThis: this.props.lognameLikesThis
-         //   })
-       // }
-    //}
-
     // handles the like/unlikes button being pressed
     handleButtonClick(){
         this.state.lognameLikesThis ? this.handleUnlike() : this.handleLike();
@@ -114,6 +103,7 @@ class PhotoAndLikes extends React.Component{
         fetch(url, { method: 'DELETE', credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
+            return;
         })
         .catch((error) => console.log(error));
     }

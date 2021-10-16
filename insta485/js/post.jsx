@@ -28,7 +28,7 @@ class Post extends React.Component {
             likeUrl, ownerShowUrl, postShowUrl, created } = this.props;
 
         // get human readable timestamp
-        let timestamp = moment(created).fromNow(); 
+        let timestamp = moment.utc(created).fromNow(); 
 
         // Render number of post image and post owner
         return (
