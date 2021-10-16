@@ -17,7 +17,10 @@ class Post extends React.Component {
     // returns list of comments
     getComments(){
         return this.state.comments.map((comment) => {
-            <Comment commentinfo = { comment } />
+            <Comment owner = { comment.owner } 
+                     ownerUrl = { comment.commentid } 
+                     loganmeOwnsThis = { comment.lognameOwnsThis }
+                     text = { comment.text }/>
         })
     }
 
@@ -43,7 +46,8 @@ class Post extends React.Component {
                 likeUrl = { likeUrl }
                 lognameLikesThis = { lognameLikesThis }
                 imgUrl = { imgUrl }
-                postid = { postid } />             
+                postid = { postid } />  
+            <CommentForm/>           
         </div>
         );
     }
