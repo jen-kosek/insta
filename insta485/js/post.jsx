@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import PhotoAndLikes from './buttons';
+import PhotoAndLikes from './likes';
 import { Comment, CommentForm } from './comments';
 import moment from 'moment';
 

@@ -39,6 +39,7 @@
             {{ following }} <a href="/users/{{ username }}/following/">following</a>
         </p>
         <p>{{ fullname }}</p>
+        {% if logname == username %}
         <p>
             <form action="/posts/?target=
                 {{ url_for('show_user', user_url_slug = username) }}"
@@ -48,6 +49,7 @@
                 <input type="hidden" name="operation" value="create"/>
             </form>
         </p>
+        {% endif %}
     </div>
 
     <!-- post photos with links -->

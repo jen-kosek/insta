@@ -79,6 +79,13 @@ class PhotoAndLikes extends React.Component{
 
     // likes the post
     handleLike(){
+        // update state
+        this.setState(prevState => (
+            { lognameLikesThis: true,
+              numLikes: prevState.numLikes + 1 }
+        ));
+
+        // update db and get new likeurl
         fetch('/api/v1/likes/?postid=' + this.props.postid, 
             { method: 'POST', credentials: 'same-origin' })
         .then((response) => {
@@ -86,25 +93,27 @@ class PhotoAndLikes extends React.Component{
             return response.json();
         })
         .then((json) => {
-            this.setState(prevState => (
-                { likeUrl: json.url,
-                  lognameLikesThis: true,
-                  numLikes: prevState.numLikes + 1 }
-            ));
+            this.setState( { likeUrl: json.url } );
         })
         .catch((error) => console.log(error));
     }
 
     // unlikes the post
-    handleUnlike(event){
-        fetch(this.state.likeUrl, { method: 'DELETE', credentials: 'same-origin' })
+    handleUnlike(){
+        // save a copy of like url
+        let url = this.state.likeUrl;
+        
+        // update state
+        this.setState(prevState => (
+            { lognameLikesThis: false,
+              numLikes: prevState.numLikes - 1,
+              likeUrl: null }
+        ));
+
+        // update db
+        fetch(url, { method: 'DELETE', credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
-            this.setState(prevState => (
-                { lognameLikesThis: false,
-                  numLikes: prevState.numLikes - 1,
-                  likeUrl: null }
-            ));
         })
         .catch((error) => console.log(error));
     }
@@ -119,10 +128,10 @@ class PhotoAndLikes extends React.Component{
                 <PostPhoto 
                 imgUrl={ imgUrl }
                 handleDoubleClick={ this.handleDoubleClick } />
-                <p>{ numLikes } { (numLikes === 1) ? 'like' : 'likes' }</p>
                 <LikeUnlikeButton 
                 lognameLikesThis={ lognameLikesThis }
                 handleButtonClick={ this.handleButtonClick } />
+                <p>{ numLikes } { (numLikes === 1) ? 'like' : 'likes' }</p>
             </div>
         );
     }

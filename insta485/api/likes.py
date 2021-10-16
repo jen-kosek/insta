@@ -24,10 +24,10 @@ def add_like():
         raise exceptions.InvalidUsage("Bad Request", status_code=400)
 
     # Connect to database
-    connection = insta485.model.get_db()
+    con = insta485.model.get_db()
 
     # Check if like already exists
-    cur = connection.execute(
+    cur = con.execute(
         "SELECT likeid FROM likes "
         "WHERE likes.owner =? AND likes.postid =?",
         [logname, post_num]
@@ -40,14 +40,14 @@ def add_like():
         raise exceptions.InvalidUsage("Conflict", status_code=409)
 
     # Otherwise, insert new like
-    cur = connection.execute(
+    cur = con.execute(
         "INSERT INTO likes (owner, postid) "
         "VALUES (?, ?)",
         [logname, post_num]
     )
 
     # Get the new likeid
-    cur = connection.execute(
+    cur = con.execute(
         "SELECT last_insert_rowid() as num"
     )
     rowid = cur.fetchall()
@@ -70,7 +70,7 @@ def delete_like(likeid):
     # Connect to database
     connection = insta485.model.get_db()
 
-    cur = connection.execute(
+    connection.execute(
         "DELETE FROM likes "
         "WHERE likes.likeid=? AND likes.owner =?",
         [likeid, logname]

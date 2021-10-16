@@ -212,7 +212,7 @@ def post_following():
             flask.abort(409)
 
         # Add follow to db
-        cur = con.execute(
+        con.execute(
             "INSERT INTO following(username1, username2) "
             "VALUES (?,?)",
             [flask.session['logname'],
@@ -227,7 +227,7 @@ def post_following():
             flask.abort(409)
 
         # Delete the following entry from the db
-        cur = con.execute(
+        con.execute(
             "DELETE FROM following "
             "WHERE username1=? AND username2=?",
             [flask.session['logname'],

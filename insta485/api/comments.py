@@ -65,7 +65,7 @@ def delete_comment(commentid):
     # Connect to database
     connection = insta485.model.get_db()
 
-    cur = connection.execute(
+    connection.execute(
         "DELETE FROM comments "
         "WHERE comments.commentid=? AND comments.owner =?",
         [commentid, logname]

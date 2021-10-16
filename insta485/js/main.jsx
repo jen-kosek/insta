@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Posts from './posts';
+import Page from './page';
 
 // This method is only called once
 ReactDOM.render(
     // Insert the post component into the DOM
-    <Posts url="/api/v1/posts/" />,
+    <Page url="/api/v1/posts/" />,
     document.getElementById('reactEntry'),
 );

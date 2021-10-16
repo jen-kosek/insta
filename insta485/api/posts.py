@@ -1,11 +1,24 @@
-"""REST API for posts."""
+"""REST API for posts and base page."""
 import flask
 import insta485
 from insta485.views.accounts import verify_password
 from insta485.api import exceptions
 
 
-@insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
+@insta485.app.route('/api/v1/', methods=["GET"])
+def get_home():
+    """Return API resource URLs."""
+    context = {
+        "comments": "/api/v1/comments/",
+        "likes": "/api/v1/likes/",
+        "posts": "/api/v1/posts/",
+        "url": "/api/v1/"
+    }
+
+    return flask.jsonify(**context)
+
+
+@insta485.app.route('/api/v1/posts/<int:postid_url_slug>/',  methods=["GET"])
 def get_post(postid_url_slug):
     """Return post on postid."""
     logname = check_login()
@@ -32,7 +45,7 @@ def get_post(postid_url_slug):
     return flask.jsonify(**context)
 
 
-@insta485.app.route('/api/v1/posts/')
+@insta485.app.route('/api/v1/posts/',  methods=["GET"])
 def get_posts():
     """Return posts based on argument specifications."""
     logname = check_login()
@@ -193,18 +206,18 @@ def get_post_context(post, logname):
 
 
 def check_login():
-    """Check if user is logged and returns logname if so."""
-    # Check if logged in via session or http basic access authenication
+    """Check if user is logged in and return logname if so."""
+    # Check if logged in via session
     if 'logname' in flask.session:
         return flask.session['logname']
 
-    username = flask.request.authorization['username']
-    password = flask.request.authorization['password']
+    # Check if logged in via http basic access authenication
+    auth = flask.request.authorization
 
-    # Raise exception if not logged in
-    if (not username or not password or
-       not verify_password(username, password)):
+    # Raise exception if not given correct credientals
+    if (not auth or not auth['username'] or not auth['password'] or
+       not verify_password(auth['username'], auth['password'])):
         raise exceptions.InvalidUsage('Forbidden', status_code=403)
 
     # Otherwise return username as logname
-    return username
+    return auth['username']
