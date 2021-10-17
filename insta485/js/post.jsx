@@ -19,9 +19,9 @@ class Post extends React.Component {
 
     //function called when user submits to add a new comment
     sendComment(postid, commentText) {
-        // HOPEFULLY ADD NEW COMMENT??????
         fetch('/api/v1/comments/?postid=' + postid, 
         { method: 'POST', credentials: 'same-origin', 
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({text: commentText}) })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);

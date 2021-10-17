@@ -43,6 +43,7 @@ class CommentForm extends React.Component{
     
         this.handleChange = this.handleChange.bind(this);
         this.pressEnter = this.pressEnter.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
     
     //function called when user types in text field
@@ -52,19 +53,23 @@ class CommentForm extends React.Component{
 
     //function called when enter pressed
     pressEnter(event) {
-        if (event.keyCode === 13) {  
-            event.preventDefault();                      
+        if (event.key === 'Enter') { 
             this.props.sendComment(this.props.postid, this.state.commentText);
             this.setState({commentText: ''});
+            event.preventDefault();
         }
+    }
+
+    handleSubmit(event){
+        event.preventDefault();
     }
 
     render(){
         return (
             <div>
-                <form className="comment-form" >
-                    <input type="text" value={this.state.commentText} onChange={this.handleChange} 
-                    onKeyPress={this.pressEnter} />
+                <form className="comment-form" onSubmit={this.handleSubmit}>
+                    <input type="text" value={this.state.commentText} 
+                    onChange={this.handleChange} onKeyPress={this.pressEnter}/>
                 </form>
             </div>
         )
