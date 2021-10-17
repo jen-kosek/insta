@@ -47,7 +47,7 @@ class PhotoAndLikes extends React.Component{
     constructor(props) {
         super(props);
         this.state = {numLikes: this.props.numLikes, likeUrl: this.props.likeUrl,
-            lognameLikesThis: this.props.lognameLikesThis };
+            lognameLikesThis: this.props.lognameLikesThis, buttonDisabled: false };
         this.handleButtonClick = this.handleButtonClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.handleLike = this.handleLike.bind(this);
@@ -56,7 +56,10 @@ class PhotoAndLikes extends React.Component{
 
     // handles the like/unlikes button being pressed
     handleButtonClick(){
-        this.state.lognameLikesThis ? this.handleUnlike() : this.handleLike();
+        if (this.state.lognameLikesThis)
+            this.handleUnlike();
+        else if (!this.state.buttonDisabled) 
+            this.handleLike();
     }
 
     // handles a double click to the phtoto
@@ -68,11 +71,8 @@ class PhotoAndLikes extends React.Component{
 
     // likes the post
     handleLike(){
-        // update state
-        this.setState(prevState => (
-            { lognameLikesThis: true,
-              numLikes: prevState.numLikes + 1 }
-        ));
+        // prevent from pressing the button to like again
+        this.setState({buttonDisabled: true});
 
         // update db and get new likeurl
         fetch('/api/v1/likes/?postid=' + this.props.postid, 
@@ -82,30 +82,37 @@ class PhotoAndLikes extends React.Component{
             return response.json();
         })
         .then((json) => {
-            this.setState( { likeUrl: json.url } );
+            // set like url from response, enabled the button again,
+            // change to unlike
+            this.setState( prevState => ({ 
+                lognameLikesThis: true,
+                numLikes: prevState.numLikes + 1,
+                likeUrl: json.url,
+                buttonDisabled: false 
+            }));
         })
+        .then(()=> {return})
         .catch((error) => console.log(error));
     }
 
     // unlikes the post
     handleUnlike(){
-        // save a copy of like url
-        let url = this.state.likeUrl;
-        
         // update state
         this.setState(prevState => (
             { lognameLikesThis: false,
-              numLikes: prevState.numLikes - 1,
-              likeUrl: null }
+              numLikes: prevState.numLikes - 1 }
         ));
 
         // update db
-        fetch(url, { method: 'DELETE', credentials: 'same-origin' })
+        fetch(this.state.likeUrl, { method: 'DELETE', credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw Error(response.statusText);
-            return;
+            // update state
+            this.setState(
+                { likeUrl: null }
+            );
         })
-        .catch((error) => console.log(error));
+        .catch((error) => console.log(error));        
     }
 
     // renders the post photo, the like counts, and the like/unlike button
