@@ -2,17 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 class DeleteCommentButton extends React.Component{    
+    constructor(props) {
+        super(props);
+        this.handleButtonClick = this.handleButtonClick.bind(this);
+    }
+    
     // delete comment when the button is pressed
-    handleButtonClick(event){
-        fetch(likeUrl, { method: 'DELETE', credentials: 'same-origin' })
-        .then((response) => {
-            if (!response.ok) throw Error(response.statusText);
-            else this.setState( {likeUrl: null} )
-        })
-        .catch((error) => console.log(error));
-
-        //prevents website from refreshing
-        event.preventDefault();
+    handleButtonClick(){
+        this.props.deleteComment(this.props.commentid, this.props.commentUrl);
     }
     
     render(){
@@ -26,13 +23,14 @@ class DeleteCommentButton extends React.Component{
 
 class Comment extends React.Component{
     render(){
-        const { owner, ownerUrl, lognameOwnsThis, text } = this.props
+        const { owner, ownerUrl, lognameOwnsThis, text, commentid, commentUrl} = this.props
 
         return (
             <div>
-                <p><a href={ ownerUrl }><b>{ owner }</b></a>{ text }
-                { lognameOwnsThis ? <DeleteCommentButton/> : <p></p> }
-                </p>
+                <a href={ ownerUrl }><b>{ owner }</b></a> { text } 
+                { lognameOwnsThis ? 
+                <DeleteCommentButton commentid={commentid} 
+                commentUrl={commentUrl} deleteComment={this.props.deleteComment} /> : <p></p> }
             </div>
         )
     }
@@ -43,37 +41,30 @@ class CommentForm extends React.Component{
         super(props);
         this.state = {commentText: ''};
     
-        this.changeState = this.changeState.bind(this);
-        this.sendComment = this.sendComment.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.pressEnter = this.pressEnter.bind(this);
     }
     
-    //calls parent to send comment
-    sendComment() {
-        this.props.sendComment(this.state.commentText)
-    }
-
     //function called when user types in text field
-    changeState(event) {
+    handleChange(event) {
         this.setState({commentText: event.target.value});
     }
 
     //function called when enter pressed
     pressEnter(event) {
-        if (event.keyCode === 'Enter') {
-            event.sendComment();
+        if (event.keyCode === 13) {  
+            event.preventDefault();                      
+            this.props.sendComment(this.props.postid, this.state.commentText);
+            this.setState({commentText: ''});
         }
-
-        //prevents website from refreshing
-        event.preventDefault();
     }
 
     render(){
         return (
             <div>
-                <form className="comment-form" type="text" 
-                onKeyPress={this.pressEnter}>
-                    <input type="text" value="" onChange={this.changeState}
-                    value={this.state.value}/>
+                <form className="comment-form" >
+                    <input type="text" value={this.state.commentText} onChange={this.handleChange} 
+                    onKeyPress={this.pressEnter} />
                 </form>
             </div>
         )
@@ -83,8 +74,19 @@ class CommentForm extends React.Component{
 Comment.propTypes = {
     owner: PropTypes.string.isRequired,
     ownerUrl: PropTypes.string.isRequired,
-    lognameOwnsThis: PropTypes.bool,
+    lognameOwnsThis: PropTypes.bool.isRequired,
     text: PropTypes.string.isRequired,
+    commentid: PropTypes.number.isRequired,
+    commentUrl: PropTypes.string.isRequired
+};
+
+DeleteCommentButton.propTypes = {
+    commentid: PropTypes.number.isRequired,
+    commentUrl: PropTypes.string.isRequired
+};
+
+CommentForm.propTypes = {
+    postid: PropTypes.number.isRequired
 };
 
 export { CommentForm, Comment };

@@ -12,25 +12,41 @@ class Post extends React.Component {
         // Initialize mutable state
         super(props);
         this.state = { comments: this.props.comments };
+
+        this.sendComment = this.sendComment.bind(this);
+        this.deleteComment = this.deleteComment.bind(this);
     }
 
-    //function called when user submits
-    sendComment(event) {
+    //function called when user submits to add a new comment
+    sendComment(postid, commentText) {
         // HOPEFULLY ADD NEW COMMENT??????
-        fetch('/api/v1/comments/', { method: 'POST', credentials: 'same-origin' })
-            .then((response) => {
-                if (!response.ok) throw Error(response.statusText);
-                return response.json();
-            })
-            .then((data) => {
-                this.setState( (prevState) => ({
-                    comments: prevState.comments.concat(data)
-                }))
-            })
-            .catch((error) => console.log(error));
+        fetch('/api/v1/comments/?postid=' + postid, 
+        { method: 'POST', credentials: 'same-origin', 
+        body: JSON.stringify({text: commentText}) })
+        .then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+        })
+        .then((data) => {
+            this.setState( prevState => ({
+                comments: prevState.comments.concat(data)
+            }));
+        })
+        .catch((error) => console.log(error));
+    }
 
-        //prevents website from refreshing
-        event.preventDefault();
+    deleteComment(commentid, commentUrl){
+        // remove the comment from the post state
+        this.setState(prevState => ({
+            comments: prevState.comments.filter(comment => comment.commentid != commentid)
+        }));
+
+        // delete comment from db with api
+        fetch(commentUrl, { method: 'DELETE', credentials: 'same-origin' })
+        .then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+        })
+        .catch((error) => console.log(error));
     }
 
     render() {
@@ -48,7 +64,7 @@ class Post extends React.Component {
             <img className="pfp"
             src={ ownerImgUrl }
             alt={ ownerImgUrl }/>
-            <a href={ ownerShowUrl }><b>{ owner }</b></a>
+            <p><a href={ ownerShowUrl }><b>{ owner }</b></a></p>
             <p><a href={ postShowUrl }> { timestamp } </a></p>
             <PhotoAndLikes 
                 numLikes = { numLikes }
@@ -60,11 +76,14 @@ class Post extends React.Component {
                 <Comment key = { comment.commentid }
                     owner = { comment.owner }
                     ownerUrl = { comment.ownerShowUrl }
-                    loganmeOwnsThis = { comment.lognameOwnsThis }
+                    lognameOwnsThis = { comment.lognameOwnsThis }
                     text = { comment.text }
+                    commentid = {comment.commentid}
+                    commentUrl = {comment.url}
+                    deleteComment = {this.deleteComment}
                 />
             ))}
-            <CommentForm/>           
+            <CommentForm postid={ postid } sendComment={this.sendComment} />           
         </div>
         );
     }
