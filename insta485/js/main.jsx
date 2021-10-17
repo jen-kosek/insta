@@ -4,7 +4,7 @@ import Page from './page';
 
 // This method is only called once
 ReactDOM.render(
-    // Insert the post component into the DOM
-    <Page url="/api/v1/posts/" />,
-    document.getElementById('reactEntry'),
+  // Insert the post component into the DOM
+  <Page url="/api/v1/posts/" />,
+  document.getElementById('reactEntry'),
 );
