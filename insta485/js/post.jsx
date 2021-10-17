@@ -11,17 +11,7 @@ class Post extends React.Component {
     constructor(props) {
         // Initialize mutable state
         super(props);
-        this.state = { comments: this.props };
-    }
-
-    // returns list of comments
-    getComments(){
-        this.state.comments.map((comment) => {
-            return <Comment owner = { comment.owner } 
-                     ownerUrl = { comment.ownerShowUrl } 
-                     loganmeOwnsThis = { comment.lognameOwnsThis }
-                     text = { comment.text }/>
-        })
+        this.state = { comments: this.props.comments };
     }
 
     //function called when user submits
@@ -30,16 +20,12 @@ class Post extends React.Component {
         fetch('/api/v1/comments/', { method: 'POST', credentials: 'same-origin' })
             .then((response) => {
                 if (!response.ok) throw Error(response.statusText);
-
-                this.setState( prevState => {
-                    prevState.comments.concat({ "commentid" : response.commentid },
-                                              { "lognameOwnsThis" : response.lognameOwnsThis },
-                                              { "owner": response.owner },
-                                              { "ownerShowUrl" : response.ownerShowUrl },
-                                              { "text" : response.text },
-                                              { "url" : response.url })})
-
                 return response.json();
+            })
+            .then((data) => {
+                this.setState( (prevState) => ({
+                    comments: prevState.comments.concat(data)
+                }))
             })
             .catch((error) => console.log(error));
 
@@ -60,17 +46,24 @@ class Post extends React.Component {
         return (
         <div className="post">
             <img className="pfp"
-            src={ ownerImgUrl } 
+            src={ ownerImgUrl }
             alt={ ownerImgUrl }/>
             <a href={ ownerShowUrl }><b>{ owner }</b></a>
             <p><a href={ postShowUrl }> { timestamp } </a></p>
             <PhotoAndLikes 
-                numLikes = { numLikes } 
+                numLikes = { numLikes }
                 likeUrl = { likeUrl }
                 lognameLikesThis = { lognameLikesThis }
                 imgUrl = { imgUrl }
                 postid = { postid } />  
-            { this.getComments }
+            { this.state.comments.map(comment => (
+                <Comment key = { comment.commentid }
+                    owner = { comment.owner }
+                    ownerUrl = { comment.ownerShowUrl }
+                    loganmeOwnsThis = { comment.lognameOwnsThis }
+                    text = { comment.text }
+                />
+            ))}
             <CommentForm/>           
         </div>
         );

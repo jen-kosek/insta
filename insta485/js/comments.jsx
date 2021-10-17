@@ -26,7 +26,7 @@ class DeleteCommentButton extends React.Component{
 
 class Comment extends React.Component{
     render(){
-        const { owner, ownerUrl, lognameOwnsThis, text } = this.state
+        const { owner, ownerUrl, lognameOwnsThis, text } = this.props
 
         return (
             <div>
@@ -55,9 +55,6 @@ class CommentForm extends React.Component{
     //function called when user types in text field
     changeState(event) {
         this.setState({commentText: event.target.value});
-
-        //prevents website from refreshing
-        event.preventDefault();
     }
 
     //function called when enter pressed
@@ -86,7 +83,7 @@ class CommentForm extends React.Component{
 Comment.propTypes = {
     owner: PropTypes.string.isRequired,
     ownerUrl: PropTypes.string.isRequired,
-    lognameOwnsThis: PropTypes.bool.isRequired,
+    lognameOwnsThis: PropTypes.bool,
     text: PropTypes.string.isRequired,
 };
 
