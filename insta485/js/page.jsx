@@ -15,16 +15,32 @@ class Page extends React.Component {
         // This line automatically assigns this.props.url to the const variable url
         const { url } = this.props;
 
-        // Call REST API to get the all the posts info and next page url
-        fetch(url, { credentials: 'same-origin' })
-        .then((response) => {
-            if (!response.ok) throw Error(response.statusText);
-            return response.json();
-        })
-        .then((data) => {
-            this.setState({postsInfo: data['results'], next: data['next']})
-        })
-        .catch((error) => console.log(error));
+        // Load history if arrived by back button
+        if (String(window.performance.getEntriesByType("navigation")[0].type) === "back_forward"){
+            window.history.back();
+            this.setState({
+                url: window.history.state.url,
+                postsInfo: window.history.state.postsInfo,
+                next: window.history.state.next
+            });
+        }
+
+        // Otherwise call REST API to get the all the posts info and next page url
+        else {
+            fetch(url, { credentials: 'same-origin' })
+            .then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+            })
+            .then((data) => {
+                this.setState({postsInfo: data['results'], next: data['next']})
+            })
+            // Add state to history
+            .then(() => {
+                window.history.pushState(this.state, "page", "/");
+            })
+            .catch((error) => console.log(error));
+        }
     }
 
     fetchNextPage() {
@@ -43,11 +59,14 @@ class Page extends React.Component {
                 url: data['url']
             }))
         })
-        .then( () => {return})
+        // Edit history
+        .then(() => {
+            window.history.replaceState(this.state, "index", '/');
+        })
         .catch((error) => console.log(error));
     }
 
-    render(){
+    render(){        
         return (
             <div className="page"> 
                 <InfiniteScroll
