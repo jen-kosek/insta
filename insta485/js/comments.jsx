@@ -25,29 +25,20 @@ class DeleteCommentButton extends React.Component{
 }
 
 class Comment extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {owner: this.props.owner, ownerUrl: this.props.ownerUrl,
-                        lognameOwnsThis: this.props.lognameOwnsThis, 
-                        text: this.props.text};
-    }
-
     render(){
         const { owner, ownerUrl, lognameOwnsThis, text } = this.state
 
         return (
             <div>
                 <p><a href={ ownerUrl }><b>{ owner }</b></a>{ text }
-                if ({ owner } === { lognameOwnsThis }) {
-                    <DeleteCommentButton/>
-                }
+                { lognameOwnsThis ? <DeleteCommentButton/> : <p></p> }
                 </p>
             </div>
         )
     }
 }
 
-export class CommentForm extends React.Component{
+class CommentForm extends React.Component{
     constructor(props) {
         super(props);
         this.state = {commentText: ''};
@@ -56,22 +47,14 @@ export class CommentForm extends React.Component{
         this.sendComment = this.sendComment.bind(this);
     }
     
+    //calls parent to send comment
+    sendComment() {
+        this.props.sendComment(this.state.commentText)
+    }
+
     //function called when user types in text field
     changeState(event) {
         this.setState({commentText: event.target.value});
-    }
-
-    //function called when user submits
-    sendComment(event) {
-        this.setState({commentText: this.state.commentText})
-
-        // MAYBE ADD NEW COMMENT??????
-        fetch('/api/v1/comments/', { method: 'POST', credentials: 'same-origin' })
-            .then((response) => {
-                if (!response.ok) throw Error(response.statusText);
-                return response.json();
-            })
-            .catch((error) => console.log(error));
 
         //prevents website from refreshing
         event.preventDefault();
@@ -82,14 +65,18 @@ export class CommentForm extends React.Component{
         if (event.keyCode === 'Enter') {
             event.sendComment();
         }
+
+        //prevents website from refreshing
+        event.preventDefault();
     }
 
     render(){
         return (
             <div>
-                <form className="comment-form" onChange={this.changeState} 
-                    onKeyPress={this.pressEnter}>
-                    <input type="text" value=""/>
+                <form className="comment-form" type="text" 
+                onKeyPress={this.pressEnter}>
+                    <input type="text" value="" onChange={this.changeState}
+                    value={this.state.value}/>
                 </form>
             </div>
         )
@@ -103,4 +90,4 @@ Comment.propTypes = {
     text: PropTypes.string.isRequired,
 };
 
-export default Comment;
+export { CommentForm, Comment };

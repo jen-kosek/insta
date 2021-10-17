@@ -16,12 +16,35 @@ class Post extends React.Component {
 
     // returns list of comments
     getComments(){
-        return this.state.comments.map((comment) => {
-            <Comment owner = { comment.owner } 
-                     ownerUrl = { comment.commentid } 
+        this.state.comments.map((comment) => {
+            return <Comment owner = { comment.owner } 
+                     ownerUrl = { comment.ownerShowUrl } 
                      loganmeOwnsThis = { comment.lognameOwnsThis }
                      text = { comment.text }/>
         })
+    }
+
+    //function called when user submits
+    sendComment(event) {
+        // HOPEFULLY ADD NEW COMMENT??????
+        fetch('/api/v1/comments/', { method: 'POST', credentials: 'same-origin' })
+            .then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+
+                this.setState( prevState => {
+                    prevState.comments.concat({ "commentid" : response.commentid },
+                                              { "lognameOwnsThis" : response.lognameOwnsThis },
+                                              { "owner": response.owner },
+                                              { "ownerShowUrl" : response.ownerShowUrl },
+                                              { "text" : response.text },
+                                              { "url" : response.url })})
+
+                return response.json();
+            })
+            .catch((error) => console.log(error));
+
+        //prevents website from refreshing
+        event.preventDefault();
     }
 
     render() {
@@ -47,6 +70,7 @@ class Post extends React.Component {
                 lognameLikesThis = { lognameLikesThis }
                 imgUrl = { imgUrl }
                 postid = { postid } />  
+            { this.getComments }
             <CommentForm/>           
         </div>
         );
