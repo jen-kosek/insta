@@ -109,7 +109,7 @@ class Post extends React.Component {
 }
 
 Post.propTypes = {
-  comments: PropTypes.objectOf(PropTypes.object).isRequired,
+  comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   imgUrl: PropTypes.string.isRequired,
   created: PropTypes.string.isRequired,
   numLikes: PropTypes.number.isRequired,
