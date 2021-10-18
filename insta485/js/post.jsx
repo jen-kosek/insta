@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import PhotoAndLikes from './likes';
-import { Comment, CommentForm } from './comments';
+import PhotoAndLikes from './photoAndLikes';
+import Comment from './comment';
+import CommentForm from './commentForm';
 
 class Post extends React.Component {
   /* Display number of image and post owner of a single post
@@ -11,7 +12,8 @@ class Post extends React.Component {
   constructor(props) {
     // Initialize mutable state
     super(props);
-    this.state = { comments: this.props.comments };
+    const { comments } = this.props;
+    this.state = { comments };
 
     this.sendComment = this.sendComment.bind(this);
     this.deleteComment = this.deleteComment.bind(this);
@@ -41,7 +43,7 @@ class Post extends React.Component {
   deleteComment(commentid, commentUrl) {
     // remove the comment from the post state
     this.setState((prevState) => ({
-      comments: prevState.comments.filter((comment) => comment.commentid != commentid),
+      comments: prevState.comments.filter((comment) => comment.commentid !== commentid),
     }));
 
     // delete comment from db with api
@@ -59,6 +61,8 @@ class Post extends React.Component {
       imgUrl, owner, ownerImgUrl, postid, numLikes, lognameLikesThis,
       likeUrl, ownerShowUrl, postShowUrl, created,
     } = this.props;
+
+    const { comments } = this.state;
 
     // get human readable timestamp
     const timestamp = moment.utc(created).fromNow();
@@ -86,7 +90,7 @@ class Post extends React.Component {
           imgUrl={imgUrl}
           postid={postid}
         />
-        { this.state.comments.map((comment) => (
+        { comments.map((comment) => (
           <Comment
             key={comment.commentid}
             owner={comment.owner}
@@ -105,7 +109,7 @@ class Post extends React.Component {
 }
 
 Post.propTypes = {
-  comments: PropTypes.array.isRequired,
+  comments: PropTypes.objectOf(PropTypes.object).isRequired,
   imgUrl: PropTypes.string.isRequired,
   created: PropTypes.string.isRequired,
   numLikes: PropTypes.number.isRequired,
@@ -116,6 +120,10 @@ Post.propTypes = {
   ownerShowUrl: PropTypes.string.isRequired,
   postShowUrl: PropTypes.string.isRequired,
   postid: PropTypes.number.isRequired,
+};
+
+Post.defaultProps = {
+  likeUrl: null,
 };
 
 export default Post;

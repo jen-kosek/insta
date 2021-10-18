@@ -1,60 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-class LikeUnlikeButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleButtonClick = this.handleButtonClick.bind(this);
-  }
-
-  handleButtonClick() {
-    this.props.handleButtonClick();
-  }
-
-  render() {
-    const { lognameLikesThis } = this.props;
-
-    return (
-      <button
-        onClick={this.handleButtonClick}
-        className="like-unlike-button"
-      >
-        { lognameLikesThis ? 'unlike' : 'like' }
-      </button>
-    );
-  }
-}
-
-class PostPhoto extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleDoubleClick = this.handleDoubleClick.bind(this);
-  }
-
-  handleDoubleClick() {
-    this.props.handleDoubleClick();
-  }
-
-  render() {
-    const { imgUrl } = this.props;
-
-    return (
-      <img
-        src={imgUrl}
-        onDoubleClick={this.handleDoubleClick}
-        alt={imgUrl}
-      />
-    );
-  }
-}
+import PostPhoto from './postPhoto';
+import LikeUnlikeButton from './likeUnlikeButton';
 
 class PhotoAndLikes extends React.Component {
   constructor(props) {
     super(props);
+    const { numLikes, likeUrl, lognameLikesThis } = this.props;
     this.state = {
-      numLikes: this.props.numLikes,
-      likeUrl: this.props.likeUrl,
-      lognameLikesThis: this.props.lognameLikesThis,
+      numLikes,
+      likeUrl,
+      lognameLikesThis,
       buttonDisabled: false,
     };
     this.handleButtonClick = this.handleButtonClick.bind(this);
@@ -65,13 +21,15 @@ class PhotoAndLikes extends React.Component {
 
   // handles the like/unlikes button being pressed
   handleButtonClick() {
-    if (this.state.lognameLikesThis) this.handleUnlike();
-    else if (!this.state.buttonDisabled) this.handleLike();
+    const { lognameLikesThis, buttonDisabled } = this.state;
+    if (lognameLikesThis) this.handleUnlike();
+    else if (!buttonDisabled) this.handleLike();
   }
 
   // handles a double click to the phtoto
   handleDoubleClick() {
-    if (!this.state.lognameLikesThis) {
+    const { lognameLikesThis } = this.state;
+    if (!lognameLikesThis) {
       this.handleLike();
     }
   }
@@ -82,7 +40,8 @@ class PhotoAndLikes extends React.Component {
     this.setState({ buttonDisabled: true });
 
     // update db and get new likeurl
-    fetch(`/api/v1/likes/?postid=${this.props.postid}`,
+    const { postid } = this.props;
+    fetch(`/api/v1/likes/?postid=${postid}`,
       { method: 'POST', credentials: 'same-origin' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
@@ -104,6 +63,8 @@ class PhotoAndLikes extends React.Component {
 
   // unlikes the post
   handleUnlike() {
+    const { likeUrl } = this.state;
+
     // update state
     this.setState((prevState) => (
       {
@@ -113,7 +74,7 @@ class PhotoAndLikes extends React.Component {
     ));
 
     // update db
-    fetch(this.state.likeUrl, { method: 'DELETE', credentials: 'same-origin' })
+    fetch(likeUrl, { method: 'DELETE', credentials: 'same-origin' })
       .then((response) => {
         if (!response.ok) throw Error(response.statusText);
         // update state
@@ -150,9 +111,15 @@ class PhotoAndLikes extends React.Component {
 }
 
 PhotoAndLikes.propTypes = {
+  postid: PropTypes.number.isRequired,
   numLikes: PropTypes.number.isRequired,
   likeUrl: PropTypes.string,
+  imgUrl: PropTypes.string.isRequired,
   lognameLikesThis: PropTypes.bool.isRequired,
+};
+
+PhotoAndLikes.defaultProps = {
+  likeUrl: null,
 };
 
 export default PhotoAndLikes;

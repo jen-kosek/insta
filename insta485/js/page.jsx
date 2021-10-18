@@ -7,7 +7,8 @@ class Page extends React.Component {
   constructor(props) {
     // Initialize mutable state
     super(props);
-    this.state = { url: this.props.url, postsInfo: [], next: '' };
+    const { url } = this.props;
+    this.state = { url, postsInfo: [], next: '' };
     this.fetchNextPage = this.fetchNextPage.bind(this);
   }
 
@@ -16,6 +17,7 @@ class Page extends React.Component {
     const { url } = this.props;
 
     // Load history if arrived by back button
+    // Otherwise call REST API to get the all the posts info and next page url
     if (String(window.performance.getEntriesByType('navigation')[0].type) === 'back_forward') {
       window.history.back();
       this.setState({
@@ -23,10 +25,7 @@ class Page extends React.Component {
         postsInfo: window.history.state.postsInfo,
         next: window.history.state.next,
       });
-    }
-
-    // Otherwise call REST API to get the all the posts info and next page url
-    else {
+    } else {
       fetch(url, { credentials: 'same-origin' })
         .then((response) => {
           if (!response.ok) throw Error(response.statusText);
@@ -67,12 +66,13 @@ class Page extends React.Component {
   }
 
   render() {
+    const { postsInfo, next } = this.state;
     return (
       <div className="page">
         <InfiniteScroll
-          dataLength={this.state.postsInfo.length} // This is important field to render the next data
+          dataLength={postsInfo.length}
           next={this.fetchNextPage}
-          hasMore={(this.state.next !== '')}
+          hasMore={(next !== '')}
           loader={<h4>Loading...</h4>}
           endMessage={(
             <p style={{ textAlign: 'center' }}>
@@ -80,7 +80,7 @@ class Page extends React.Component {
             </p>
                       )}
         >
-          { this.state.postsInfo.map((post) => (
+          { postsInfo.map((post) => (
             <Post
               key={post.postid}
               url={post.url}
